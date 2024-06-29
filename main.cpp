@@ -14,13 +14,29 @@ class LinkedList {
         Node* header;
         Node* tail;
         int size;    
+        const string emptyList = "Lista Vazia!";
+        const string indexError = "Posição Inválida";
+        const int NOT_FOUND = -1;
     
     
     public:
         LinkedList() : header(nullptr), tail(nullptr), size(0) {}
     
     public:
-        int addLast(int value){
+
+        int addStart(int value){
+            if(verifyEmpty()){
+                return add(value);
+            }
+
+            Node* newNode = new Node();
+            newNode -> data = value;
+            newNode -> next = header;
+            header = newNode;
+            return value;
+        }
+
+        int add(int value){
             /*
             Alocando memória para o objeto node
             Se não fizer isso dá erro de segmentation fault
@@ -61,18 +77,103 @@ class LinkedList {
         }
 
     private:
+        bool verifyExistIndex(int index){
+            return !(index >= 0 && index <= size);
+        }
+
+    private:
         Node* searchNodeWithIndex(int index){
-            if(index < 0 )
+            /*Try-Catch:
+            Tenta executar um conjunto de instruções (try), se gerar um erro redireciona o fluxo para o catch (capturar). Isso pode ser direcionado usando o throw
+            */
+            try{
+                if(verifyEmpty())
+                    throw emptyList;
+
+                if(verifyExistIndex(index))
+                    throw indexError;
+                
+                if(index == 0){
+                    return header;
+                }
+                
+                if(index == size - 1){
+                    return tail;
+                }
+
+                Node* iterator = header;
+                int pos = 0;
+                while(iterator -> next != nullptr){
+                    if(pos == index) 
+                        return iterator;
+
+                    iterator = iterator -> next;
+                    pos++;
+                }
+                
+                /*Mensagem é um ponteiro de conjunto de caracteres recebendo o valor do throw*/ 
+            } catch(const char* message){
+                //Cerr é o comando da classe ostream que serve para exibir erros
+                cerr << message << endl;
+            }
         }
 
     public:
         int searchWithIndex(int index){
+            return searchNodeWithIndex(index) -> data;
+        }
 
+    private:
+        int searchFirstElementPosition(int element){
+            try{
+                if(verifyEmpty()){
+                    throw emptyList;
+                }
+            } catch(const char* message){
+                cerr << message << endl;
+            }
+        
+            if(header -> data == element) return 0;
+
+            if(tail -> data == element) return (size - 1);
+
+            Node* iterator = header;
+            for(int i = 0; i < size; i++){
+                if(iterator -> data == element) return i;
+                
+                iterator = iterator -> next;
+            }
+            return NOT_FOUND;
         }
 
     public:
-        searchElement(int value){
+        bool contains(int element){
+            try{
+                if(verifyEmpty()){
+                    throw emptyList;
+                }
+            } catch(const char* message){
+                cerr << message << endl;
+            }
+        
+            if(header -> data == element) return true;
 
+            if(tail -> data == element) return true;
+
+            Node* iterator = header;
+            for(int i = 0; i < size; i++){
+                if(iterator -> data == element) return true;
+                
+                iterator = iterator -> next;
+            }
+            return false;
+        }
+        
+        int contains(int element, bool returnPositionOfElement){
+            if(returnPositionOfElement){
+                return searchFirstElementPosition(element);
+            }
+            return NOT_FOUND;
         }
 
     public: 
@@ -140,18 +241,55 @@ int main()
     LinkedList lista;
     std::cout << lista.toStringList() << std::endl;
 
-    lista.addLast(1);
+    lista.add(1);
     lista.showHeaderAndTail();
 
-    lista.addLast(2);
+    lista.add(2);
     lista.showHeaderAndTail();
     lista.printList();
 
-    lista.addLast(3);
+    lista.add(3);
     lista.printList();
 
     lista.clean();
 
     lista.printList();
+
+    lista.add(3);
+    lista.add(2);
+    lista.add(1);
+
+    /*Buscando por posição*/
+
+    // lista.searchWithIndex(-1);
+    // lista.searchWithIndex(100);
+
+    //Último elemento;
+    cout << "Elemento posição 2: "+ std::to_string(lista.searchWithIndex(2)) << endl;
+    
+    cout << "Elemento posição 1: " + std::to_string(lista.searchWithIndex(1)) << endl;
+
+    cout << "Elemento posição 0: " + std::to_string(lista.searchWithIndex(0)) << endl;
+
+    /*Buscando posição do primeiro elemento escolhido*/
+
+    cout << "Elemento 0 na posição: " + std::to_string(lista.contains(0, true)) << endl;
+
+    cout << "Elemento 1 na posição: " + std::to_string(lista.contains(1, true)) << endl;
+
+    cout << "Elemento 2 existe: " + std::to_string(lista.contains(2)) << endl;
+
+    cout << "Elemenoto 3 na posição: " + std::to_string(lista.contains(3, true)) << endl;
+
+    cout << "Elemento adicionado no começo: " + std::to_string(lista.addStart(10)) << endl;
+
+    cout << lista.toStringList() << endl;
+
+    lista.clean();
+
+    cout << "Elemento adicionado no começo: " + std::to_string(lista.addStart(20)) << endl;
+
+    cout << lista.toStringList() << endl;
+
     return 0;
 }
