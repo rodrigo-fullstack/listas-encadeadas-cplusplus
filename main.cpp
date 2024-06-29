@@ -61,7 +61,34 @@ class LinkedList {
             size++;
             return value;
         }
-    
+
+        int add(int value, int position){
+            try{
+                if(verifyExistIndex(position)){
+                    throw indexError;
+                }
+                
+            } catch (const char* message){
+                cerr << message << endl;
+            }
+
+            if(position == 0){
+                return addStart(value);
+            }
+
+            if(position == size - 1){
+                return add(value);
+            }
+
+            Node* newNode = new Node();
+            
+            Node* nodePosition = searchNodeWithIndex(position - 1);
+
+            newNode -> data = value;
+            newNode -> next = nodePosition ->next;
+            nodePosition = newNode;
+            return value;
+        }
     public:
         void clean(void){
             Node* current = header;
@@ -93,29 +120,30 @@ class LinkedList {
                 if(verifyExistIndex(index))
                     throw indexError;
                 
-                if(index == 0){
-                    return header;
-                }
-                
-                if(index == size - 1){
-                    return tail;
-                }
-
-                Node* iterator = header;
-                int pos = 0;
-                while(iterator -> next != nullptr){
-                    if(pos == index) 
-                        return iterator;
-
-                    iterator = iterator -> next;
-                    pos++;
-                }
-                
                 /*Mensagem é um ponteiro de conjunto de caracteres recebendo o valor do throw*/ 
             } catch(const char* message){
                 //Cerr é o comando da classe ostream que serve para exibir erros
                 cerr << message << endl;
             }
+            if(index == 0){
+                return header;
+            }
+            
+            if(index == size - 1){
+                return tail;
+            }
+
+            Node* iterator = header;
+            int pos = 0;
+
+            while(iterator -> next != nullptr){
+                if(pos == index) 
+                    return iterator;
+
+                iterator = iterator -> next;
+                pos++;
+            }
+            return nullptr;
         }
 
     public:
@@ -236,8 +264,7 @@ class LinkedList {
 
 
 
-int main()
-{
+int main(){
     LinkedList lista;
     std::cout << lista.toStringList() << std::endl;
 
@@ -291,5 +318,15 @@ int main()
 
     cout << lista.toStringList() << endl;
 
+    lista.add(30);
+    lista.addStart(40);
+
+    cout << lista.toStringList() << endl;   
+
+    cout << "Adicionando elemento: " + std::to_string(lista.add(15, 1)) + " na posição 1" << endl;
+
+    cout << lista.toStringList() << endl;
+
     return 0;
+
 }
